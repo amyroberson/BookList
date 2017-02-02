@@ -73,20 +73,20 @@ extension BookStore {
             
             var result = self.processBookRequest(data: data, error: error as NSError?)
             
-            if case let .success(books) = result {
+            if case .success(let books) = result {
                 let privateQueueContext = self.coreDataStack.privateQueueContext
                 privateQueueContext.performAndWait({
                     try! privateQueueContext.obtainPermanentIDs(for: books)
                 })
                 let objectIDs = books.map{ $0.objectID } //what is object id
                 let predicate = NSPredicate(format: "self IN %@", objectIDs)
-                let sortByDateTaken = NSSortDescriptor(key: "createdAt", ascending: false)
+               // let sortByDateTaken = NSSortDescriptor(key: "createdAt", ascending: false)
                 
                 do {
                     try self.coreDataStack.saveChanges()
                     
                     let mainQueueBooks = try self.fetchMainQueueBooks(predicate: predicate,
-                                                                      sortDescriptors: [sortByDateTaken])
+                                                                      sortDescriptors: [])
                     result = .success(mainQueueBooks)
                 }
                 catch let error {
@@ -141,7 +141,7 @@ extension BookStore {
             }) 
             task.resume()
         } else {
-           // completion(.systemFailure(.noURL))
+            completion(.systemFailure(ImageResult.Error.noURL))
         }
         
     }

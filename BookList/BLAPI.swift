@@ -14,7 +14,7 @@ class BLAPI {
         case invalidJSONData
     }
     
-    internal static let booksURL : URL = URL(string: "http://calm-mountain-87063.herokuapp.com/books.json")!
+    internal static let booksURL : URL = URL(string: "https://calm-mountain-87063.herokuapp.com/books.json")!
     
     
     class func booksFromJSONData(_ data: Data, inContext context: NSManagedObjectContext) -> BookResult{
@@ -41,13 +41,13 @@ class BLAPI {
     
     fileprivate class func bookFromJsonObject(_ json: [String: Any], inContext context: NSManagedObjectContext) -> Book? {
         guard let title = json["title"] as? String else {return nil}
-        //if there was noe title we cannot create a book
+        //if there was no title we cannot create a book
         
         
         
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Book.entityName)
-        let predicate = NSPredicate(format: "title == \(title)") // not sure about this line
-        fetchRequest.predicate = predicate
+       /* let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Book.entityName)
+      //  let predicate = NSPredicate(format: "imageKey == \(imageKey)") // not sure about this line
+        //fetchRequest.predicate = predicate
         
         let fetchedBooks: [Book] = {
             var books: [Book]!
@@ -61,12 +61,15 @@ class BLAPI {
         if let firstBook = fetchedBooks.first {
             return firstBook
         }
-        
+        */
         
         var book: Book!
         context.performAndWait({ () -> Void in
             book = NSEntityDescription.insertNewObject(forEntityName: Book.entityName, into: context) as! Book
             book.title = title
+            book.author = json["author"] as? String
+            book.image_url = json["image_url"] as? String
+            
         })
         return book
     }
